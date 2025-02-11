@@ -6,7 +6,7 @@ import fs from 'fs'
 import dotenv from 'dotenv'
 dotenv.config()
 
-const ownervb = process.env.OWNERS || "254743706010"
+const ownervb = process.env.OWNERS || "94770584736"
 
 
 const ownerlist = ownervb.split(';');
@@ -23,9 +23,9 @@ for (let i = 0; i < ownerlist.length; i += 2) {
 
 //global.pairingNumber = "" //put your bot number here
 
-global.mods = ['254743706010', '254700143167']
-global.prems = ['254743706010', '254700143167', '254755267907']
-global.allowed = ['254743706010', '254700143167']
+global.mods = ['94770584736', '254700143167']
+global.prems = ['94770584736', '94781352903', '254755267907']
+global.allowed = ['94770584736', '254700143167']
 global.keysZens = ['c2459db922', '37CC845916', '6fb0eff124']
 global.keysxxx = keysZens[Math.floor(keysZens.length * Math.random())]
 global.keysxteammm = [
