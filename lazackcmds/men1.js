@@ -1,84 +1,114 @@
-// handler.js
-// Menu command handler for Silva MD Bot
-
 import pkg from '@whiskeysockets/baileys';
+const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg;
 import moment from 'moment-timezone';
 import { xpRange } from '../lib/levelling.js';
 
-const { proto, prepareWAMessageMedia, generateWAMessageFromContent } = pkg;
-
 let handler = async (m, { conn, usedPrefix }) => {
-    try {
-        // Initialize date and time-related variables
-        const now = new Date(new Date().getTime() + 3600000); // Adjust timezone as needed
-        const locale = 'en';
-        const weekDay = now.toLocaleDateString(locale, { weekday: 'long' });
-        const fullDate = now.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
-        const uptime = clockString(process.uptime() * 1000);
+    let d = new Date(new Date().getTime() + 3600000);
+    let locale = 'en';
+    let week = d.toLocaleDateString(locale, { weekday: 'long' });
+    let date = d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+    let _uptime = process.uptime() * 1000;
+    let uptime = clockString(_uptime);
 
-        const greeting = getGreeting();
-        const menuText = `
-『 *Silva MD Bot* 』  
-© 2025 *Silvatech Inc*
+    let who = m.quoted ? m.quoted.sender : m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender;
+    if (!(who in global.db.data.users)) throw `✳️ The user is not found in my database`;
 
-Welcome to the Silva MD Bot. Use the menu below to interact with the bot effectively.`;
+    let user = global.db.data.users[who];
+    let { level } = user;
+    let { min, xp, max } = xpRange(level, global.multiplier);
+    let greeting = ucapan();
 
-        // Create List Message
-        const listMessage = {
-            text: menuText,
-            footer: "Powered by Silva MD Bot",
-            title: "Main Menu",
-            buttonText: "Open Menu",
-            sections: [
-                {
-                    title: "Bot Features",
-                    rows: [
-                        { title: "🎁 Bot Menu", description: "View all available bot commands", rowId: `${usedPrefix}botmenu` },
-                        { title: "🖲️ Owner Menu", description: "Manage bot settings and configurations", rowId: `${usedPrefix}ownermenu` },
-                        { title: "🎉 AI Menu", description: "Interact with AI features", rowId: `${usedPrefix}aimenu` },
-                        { title: "🎧 Audio Menu", description: "Audio editing commands", rowId: `${usedPrefix}aeditor` },
-                        { title: "🍫 Anime Menu", description: "Anime-related commands", rowId: `${usedPrefix}animemenu` },
-                    ],
-                },
-                {
-                    title: "Contact Support",
-                    rows: [
-                        { title: "📞 Call Support", description: "Dial +254700143167 for assistance", rowId: `${usedPrefix}callSupport` },
-                    ],
-                },
-            ],
-        };
+    let str = `
+      『 *SILVA MD BOT* 』
+      © 2025 *Silva Tech Inc.*`;
 
-        // Send the List Message
-        await conn.sendMessage(m.chat, listMessage);
-    } catch (error) {
-        console.error("Error generating menu:", error);
-        m.reply("An error occurred while generating the menu.");
-    }
-};
+    let msg = generateWAMessageFromContent(m.chat, {
+        viewOnceMessage: {
+          message: {
+            "messageContextInfo": {
+              "deviceListMetadata": {},
+              "deviceListMetadataVersion": 2
+            },
+            interactiveMessage: proto.Message.InteractiveMessage.create({
+              body: proto.Message.InteractiveMessage.Body.create({
+                text: "Silva MD Bot\n\n\n world class bot\n\n\n new generation bot framework"
+              }),
+              footer: proto.Message.InteractiveMessage.Footer.create({
+                text: "Bot"
+              }),
+              header: proto.Message.InteractiveMessage.Header.create({
+                title: "SILVA",
+                subtitle: "Let us destroy",
+                hasMediaAttachment: false
+              }),
+              nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+                buttons: [
+                  {
+                    "name": "single_select",
+                    "buttonParamsJson": "{\"title\":\"title\",\"sections\":[{\".menu\":\".play dj webito\",\"highlight_label\":\"label\",\"rows\":[{\"header\":\"header\",\"title\":\"title\",\"description\":\"description\",\"id\":\"id\"},{\"header\":\"header\",\"title\":\"title\",\"description\":\"description\",\"id\":\"id\"}]}]}"
+                  },
+                  {
+                    "name": "cta_reply",
+                    "buttonParamsJson": "{\"display_text\":\"MENU 📜","id":"" + usedPrefix + "botmenu\",\"id\":\"message\"}"
+                  },
+                  {
+                    "name": "cta_Script 💕","url":"https://github.com/SilvaTechB/silva-md-bot","merchant_url":"https://github.com/SilvaTechB/silva-md-bot",
+                    "buttonParamsJson": "{\"display_text\":\"url\",\"url\":\"https://www.google.com\",\"merchant_url\":\"https://www.google.com\"}"
+                  },
+                  {
+                    "name": "cta_OWNER 🌟","url":"https://wa.me/message/254700143167",
+                    "buttonParamsJson": "{\"display_text\":\"call\",\"id\":\"message\"}"
+                  },
+                  {
+                    "name": "cta_copy",
+                    "buttonParamsJson": "{\"display_text\":\"copy\",\"id\":\"123456789\",\"copy_code\":\"message\"}"
+                  },
+                  {
+                    "name": "cta_reminder",
+                    "buttonParamsJson": "{\"display_text\":\"Recordatorio\",\"id\":\"message\"}"
+                  },
+                  {
+                    "name": "cta_cancel_reminder",
+                    "buttonParamsJson": "{\"display_text\":\"cta_cancel_reminder\",\"id\":\"message\"}"
+                  },
+                  {
+                    "name": "address_message",
+                    "buttonParamsJson": "{\"display_text\":\"address_message\",\"id\":\"message\"}"
+                  },
+                  {
+                    "name": "send_location",
+                    "buttonParamsJson": ""
+                  }
+                ],
+              })
+            })
+          }
+        }
+      }, {});
 
-handler.help = ['men1', 'hel1', 'commands1'];
-handler.tags = ['group'];
-handler.command = ['men1', 'hel1', 'commands1'];
+    await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
+}
+
+handler.help = ['menu', 'help'];
+handler.tags = ['main'];
+handler.command = ['menu1', 'help1', 'commands1'];
 
 export default handler;
 
-// Utility Functions
-
-// Format uptime as HH:MM:SS
 function clockString(ms) {
-    const h = Math.floor(ms / 3600000) || 0;
-    const m = Math.floor((ms % 3600000) / 60000) || 0;
-    const s = Math.floor((ms % 60000) / 1000) || 0;
-    return [h, m, s].map((unit) => unit.toString().padStart(2, '0')).join(':');
+    let h = isNaN(ms) ? '--' : Math.floor(ms / 3600000);
+    let m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60;
+    let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60;
+    return [h, m, s].map(v => v.toString().padStart(2, 0)).join(':');
 }
 
-// Return a contextual greeting based on the current time
-function getGreeting() {
-    const hour = moment.tz('Asia/Karachi').hour();
-    if (hour < 4) return "Happy early morning ☀️";
-    if (hour < 10) return "Good morning 🌅";
-    if (hour < 15) return "Good afternoon 🕑";
-    if (hour < 18) return "Good evening 🌇";
-    return "Good night 🌙";
+function ucapan() {
+    const time = moment.tz('Africa/Nairobi').format('HH');
+    let res = "Good Day";
+    if (time >= 4 && time < 10) res = "Good Morning 🌅";
+    if (time >= 10 && time < 15) res = "Good Afternoon 🌞";
+    if (time >= 15 && time < 18) res = "Good Evening 🌇";
+    if (time >= 18) res = "Good Night 🌙";
+    return res;
 }
